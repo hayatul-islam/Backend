@@ -1,0 +1,58 @@
+[
+  {
+    "id": 1,
+    "name": "iPhone 17",
+    "price": 120000,
+    "categoryId": 1,
+    "stock": 15
+  },
+  {
+    "id": 2,
+    "name": "Samsung Galaxy S26",
+    "price": 95000,
+    "categoryId": 1,
+    "stock": 20
+  },
+  {
+    "id": 3,
+    "name": "MacBook Air M4",
+    "price": 140000,
+    "categoryId": 2,
+    "stock": 8
+  },
+  {
+    "id": 4,
+    "name": "Dell Inspiron 15",
+    "price": 85000,
+    "categoryId": 2,
+    "stock": 12
+  },
+  {
+    "id": 5,
+    "name": "Sony WH-1000XM6",
+    "price": 45000,
+    "categoryId": 3,
+    "stock": 25
+  },
+  {
+    "id": 6,
+    "name": "New product 1",
+    "price": 20000,
+    "categoryId": 2,
+    "stock": 30
+  },
+  {
+    "id": 8,
+    "name": "Product 8",
+    "price": 50000,
+    "categoryId": 1,
+    "stock": 40
+  },
+  {
+    "id": 9,
+    "name": "Product 10",
+    "price": 60000,
+    "categoryId": 4,
+    "stock": 50
+  }
+]
