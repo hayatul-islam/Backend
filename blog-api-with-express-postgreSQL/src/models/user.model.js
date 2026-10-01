@@ -3,7 +3,7 @@ const bcrypt = require("bcrypt");
 
 const getAllUsers = async () => {
   const result = await pool.query(`
-        SELECT id, name, email, created_at
+        SELECT id, name, email, role, created_at
         FROM users
         ORDER BY id ASC
     `);
@@ -39,6 +39,11 @@ const createUser = async ({ name, email, password }) => {
 };
 
 const updateUser = async (id, { name, email, password }) => {
+  let hashPassword = null;
+  if (password) {
+    hashPassword = await bcrypt.hash(password, 10);
+  }
+
   const result = await pool.query(
     `
         UPDATE users
@@ -49,7 +54,7 @@ const updateUser = async (id, { name, email, password }) => {
         WHERE id = $4
         RETURNING id, name, email, created_at
         `,
-    [name, email, password, id],
+    [name, email, hashPassword, id],
   );
 
   return result.rows[0];
@@ -80,6 +85,19 @@ const getUserByEmail = async (email) => {
   return result.rows[0];
 };
 
+const updateUserRole = async (id, role) => {
+  const result = await pool.query(
+    `
+    UPDATE users
+    SET role = $2
+    WHERE id = $1
+    RETURNING id, name, email, role, created_at
+    `,
+    [id, role],
+  );
+  return result.rows[0];
+};
+
 module.exports = {
   getAllUsers,
   createUser,
@@ -87,4 +105,5 @@ module.exports = {
   updateUser,
   deleteUser,
   getUserByEmail,
+  updateUserRole,
 };

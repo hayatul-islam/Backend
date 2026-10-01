@@ -9,19 +9,19 @@ const authenticate = (req, res, next) => {
       return sendResponse(res, 401, false, "Authentication required");
     }
 
-    const token = authHeader.split(" ")[1];
+    const [scheme, token] = authHeader.split(" ");
 
-    if (!token) {
+    if (scheme !== "Bearer" || !token) {
       return sendResponse(res, 401, false, "Invalid authorization format");
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
 
     req.user = decoded;
 
     next();
   } catch (error) {
-    return sendResponse(res, 401, false, "Invalid or expired token");
+    return sendResponse(res, 401, false, "Invalid or expired access token");
   }
 };
 
