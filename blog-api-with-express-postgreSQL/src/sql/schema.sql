@@ -28,4 +28,26 @@ ADD COLUMN role VARCHAR(20) NOT NULL DEFAULT 'user';
 
 ALTER TABLE users
 ADD CONSTRAINT users_role_check
-CHECK (role IN ('admin', 'user'))
+CHECK (role IN ('admin', 'user'));
+
+CREATE TABLE posts (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL,
+    user_id INT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+
+    CONSTRAINT fk_post_user
+        FOREIGN KEY (user_id)
+        REFERENCES users(id)
+        ON DELETE CASCADE
+);
+
+ALTER TABLE posts
+RENAME COLUMN user_id TO author_id;
+
+ALTER TABLE posts
+RENAME CONSTRAINT fk_post_user TO fk_post_author;
+
+SELECT * FROM posts;
