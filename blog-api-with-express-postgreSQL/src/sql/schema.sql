@@ -51,3 +51,47 @@ ALTER TABLE posts
 RENAME CONSTRAINT fk_post_user TO fk_post_author;
 
 SELECT * FROM posts;
+
+CREATE TABLE categories(
+	id SERIAL PRIMARY KEY,
+	name VARCHAR(100) NOT NULL UNIQUE,
+	created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE posts
+ADD COLUMN category_id INT;
+
+ALTER TABLE posts
+ADD CONSTRAINT fk_post_category
+FOREIGN KEY (category_id)
+REFERENCES categories(id)
+ON DELETE SET NULL;
+
+CREATE TABLE comments (
+    id SERIAL PRIMARY KEY,
+    content TEXT NOT NULL,
+    post_id INT NOT NULL,
+    user_id INT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+
+    CONSTRAINT fk_comment_post
+        FOREIGN KEY (post_id)
+        REFERENCES posts(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_comment_user
+        FOREIGN KEY (user_id)
+        REFERENCES users(id)
+        ON DELETE CASCADE
+);
+
+CREATE INDEX idx_posts_author_id
+ON posts(author_id);
+
+CREATE INDEX idx_comments_post_id
+ON comments(post_id);
+
+EXPLAIN ANALYZE
+SELECT *
+FROM posts
+WHERE author_id = 1;

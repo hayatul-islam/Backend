@@ -1,6 +1,8 @@
 const postModel = require("../models/post.model");
 const sendResponse = require("../utils/response");
 const categoryModel = require("../models/category.model");
+const commentModel = require("../models/comment.model");
+const { isValidId } = require("../utils/isValidId");
 
 const getPosts = async (req, res, next) => {
   try {
@@ -51,11 +53,17 @@ const getPost = async (req, res, next) => {
   try {
     const { id } = req.params;
 
+    if (!isValidId(id)) {
+      return sendResponse(res, 400, false, "Invalid post ID");
+    }
+
     const post = await postModel.getPostById(id);
 
     if (!post) {
       return sendResponse(res, 404, false, "Post not found");
     }
+
+    const comments = await commentModel.getCommentsByPostId(id);
 
     const formattedPost = {
       id: post.id,
@@ -67,10 +75,22 @@ const getPost = async (req, res, next) => {
         name: post.author_name,
       },
 
-      category: {
-        id: post.category_id,
-        name: post.category_name,
-      },
+      category: post.category_id
+        ? {
+            id: post.category_id,
+            name: post.category_name,
+          }
+        : null,
+
+      comments: comments.map((com) => ({
+        id: com.id,
+        content: com.content,
+        user: {
+          id: com.user_id,
+          name: com.user_name,
+        },
+        created_at: com.created_at,
+      })),
 
       createdAt: post.created_at,
       updatedAt: post.updated_at,
@@ -117,6 +137,11 @@ const createPost = async (req, res, next) => {
 const updatePost = async (req, res, next) => {
   try {
     const { id } = req.params;
+
+    if (!isValidId(id)) {
+      return sendResponse(res, 400, false, "Invalid post ID");
+    }
+
     const { title, content, category_id } = req.body;
 
     const existingPost = await postModel.getPostById(id);
@@ -125,7 +150,7 @@ const updatePost = async (req, res, next) => {
       return sendResponse(res, 404, false, "Post not found");
     }
 
-    if (existingPost.author_id !== req.user.id) {
+    if (existingPost.author_id !== req.user.id && req.user.role !== 'admin') {
       return sendResponse(
         res,
         403,
@@ -157,12 +182,17 @@ const updatePost = async (req, res, next) => {
 const deletePost = async (req, res, next) => {
   try {
     const { id } = req.params;
+
+    if (!isValidId(id)) {
+      return sendResponse(res, 400, false, "Invalid post ID");
+    }
+
     const post = await postModel.deletePost(id);
     if (!post) {
       return sendResponse(res, 404, false, "Post not found");
     }
 
-    if (post.author_id !== req.user.id) {
+    if (post.author_id !== req.user.id && req.user.role !== 'admin') {
       return sendResponse(
         res,
         403,
