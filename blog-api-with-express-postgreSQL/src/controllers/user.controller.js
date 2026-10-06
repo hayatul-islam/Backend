@@ -4,6 +4,8 @@ const bcrypt = require("bcrypt");
 const refreshTokenModel = require("../models/refreshToken.model");
 const { generateAccessToken, generateRefreshToken } = require("../utils/token");
 const jwt = require("jsonwebtoken");
+const fs = require("fs");
+const path = require("path");
 
 const getUsers = async (req, res, next) => {
   try {
@@ -214,6 +216,43 @@ const logoutUser = async (req, res, next) => {
   }
 };
 
+const uploadProfileImage = async (req, res, next) => {
+  try {
+    if (!req.file) {
+      return sendResponse(res, 400, false, "Profile image is required");
+    }
+
+    const user = await userModel.getUserById(req.user.id);
+
+    if (user.image) {
+      const relativePath = user.image.replace(/^\/+/, "");
+
+      const oldImagePath = path.join(process.cwd(), relativePath);
+
+      if (fs.existsSync(oldImagePath)) {
+        await fs.promises.unlink(oldImagePath);
+      }
+    }
+
+    const imagePath = `/uploads/profiles/${req.file.filename}`;
+
+    const updatedUser = await userModel.updateProfileImage(
+      req.user.id,
+      imagePath,
+    );
+
+    return sendResponse(
+      res,
+      200,
+      true,
+      "Profile image uploaded successfully",
+      updatedUser,
+    );
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getUsers,
   getUser,
@@ -225,4 +264,5 @@ module.exports = {
   refreshAccessToken,
   logoutUser,
   updateUserRole,
+  uploadProfileImage,
 };

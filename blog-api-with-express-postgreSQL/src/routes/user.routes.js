@@ -10,10 +10,12 @@ const {
   refreshAccessToken,
   logoutUser,
   updateUserRole,
+  uploadProfileImage,
 } = require("../controllers/user.controller");
 const validationCreateUser = require("../middlewares/user.validation.middleware");
 const authenticate = require("../middlewares/auth.middleware");
 const authorize = require("../middlewares/authorize.middleware");
+const upload = require("../config/multer");
 
 const router = express.Router();
 
@@ -25,6 +27,12 @@ router.post("/refresh", refreshAccessToken);
 // Authenticated
 router.post("/logout", authenticate, logoutUser);
 router.get("/profile", authenticate, getProfile);
+router.post(
+  "/profile-image",
+  authenticate,
+  upload.single("image"),
+  uploadProfileImage,
+);
 
 // Admin only
 router.get("/", authenticate, authorize("admin"), getUsers);

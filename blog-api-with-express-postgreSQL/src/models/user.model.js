@@ -14,7 +14,7 @@ const getAllUsers = async () => {
 const getUserById = async (id) => {
   const result = await pool.query(
     `
-        SELECT id, name, email, created_at
+        SELECT id, name, email, image, created_at
         FROM users
         WHERE id = $1
         `,
@@ -98,6 +98,20 @@ const updateUserRole = async (id, role) => {
   return result.rows[0];
 };
 
+const updateProfileImage = async (id, profileImage) => {
+  const result = await pool.query(
+    `
+    UPDATE users
+    SET image = $1
+    WHERE id = $2
+    RETURNING id, name, email, role, image, created_at
+    `,
+    [profileImage, id],
+  );
+
+  return result.rows[0];
+};
+
 module.exports = {
   getAllUsers,
   createUser,
@@ -106,4 +120,5 @@ module.exports = {
   deleteUser,
   getUserByEmail,
   updateUserRole,
+  updateProfileImage,
 };
